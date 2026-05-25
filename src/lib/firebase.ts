@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, addDoc, query, where, orderBy } from 'firebase/firestore';
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, addDoc } from 'firebase/firestore';
 
 // Luxury Brand Initial Products Seed
 export interface Product {
@@ -18,6 +18,41 @@ export interface Product {
   rating: number;
   reviewCount: number;
   wearType: 'daily' | 'casual' | 'party' | 'traditional' | 'festive';
+  createdAt: string;
+}
+
+export interface Address {
+  id: string;
+  userId: string;
+  fullName: string;
+  phone: string;
+  addressLine: string;
+  city: string;
+  state: string;
+  pincode: string;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  items: any[];
+  status: 'processing' | 'shipped' | 'delivered';
+  totalAmount: number;
+  shippingAddress: Address;
+  paymentMethod: 'cod' | 'online';
+  paymentStatus: string;
+  createdAt: string;
+}
+
+export interface Review {
+  id: string;
+  productId: string;
+  userName: string;
+  rating: number;
+  comment: string;
+  image?: string;
+  approved: boolean;
+  featured: boolean;
   createdAt: string;
 }
 
@@ -716,6 +751,33 @@ export const serviceDb = {
     }
   },
 
+  getAddresses: async (uid: string): Promise<Address[]> => {
+    const profile = await serviceDb.getUserProfile(uid);
+    return profile?.addressList || [];
+  },
+
+  addAddress: async (uid: string, address: Address) => {
+    const profile = await serviceDb.getUserProfile(uid);
+    if (profile) {
+      const addressList = [...(profile.addressList || []), address];
+      await serviceDb.updateUserProfile(uid, { addressList });
+    }
+  },
+
+  deleteAddress: async (uid: string, addressId: string) => {
+    if (realDb) {
+      // Real Firestore logic would go here
+      console.log("Delete address from Firestore not yet implemented");
+    } else {
+      const users = dbSimulator.getUsers();
+      const index = users.findIndex(u => u.uid === uid);
+      if (index !== -1) {
+        users[index].addressList = users[index].addressList.filter((a: any) => a.id !== addressId);
+        dbSimulator.saveUsers(users);
+      }
+    }
+  },
+
   // Products CRUD
   getProducts: async (): Promise<Product[]> => {
     if (realDb) {
@@ -768,16 +830,23 @@ export const serviceDb = {
   },
 
   // Orders CRUD
-  getOrders: async (): Promise<any[]> => {
+  getOrders: async (uid?: string): Promise<any[]> => {
     if (realDb) {
       const snap = await getDocs(collection(realDb, 'orders'));
       const list: any[] = [];
       snap.forEach(doc => {
-        list.push({ orderId: doc.id, ...doc.data() });
+        const data = doc.data();
+        if (!uid || data.userId === uid) {
+          list.push({ id: doc.id, ...data });
+        }
       });
       return list;
     } else {
-      return dbSimulator.getOrders();
+      let orders = dbSimulator.getOrders();
+      if (uid) {
+        orders = orders.filter((o: any) => o.userId === uid);
+      }
+      return orders.map((o: any) => ({ ...o, id: o.id || o.orderId }));
     }
   },
 
@@ -788,7 +857,7 @@ export const serviceDb = {
     } else {
       const orders = dbSimulator.getOrders();
       const orderId = 'KAEL-' + Math.floor(100000 + Math.random() * 900000);
-      const newOrder = { ...order, orderId };
+      const newOrder = { ...order, id: orderId, orderId };
       orders.unshift(newOrder);
       dbSimulator.saveOrders(orders);
       

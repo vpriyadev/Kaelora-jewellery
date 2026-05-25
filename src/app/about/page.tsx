@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Award, Shield, Sparkles, Heart } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function AboutPage() {
   return (
@@ -50,7 +51,13 @@ export default function AboutPage() {
             />
             {/* Center avatar */}
             <div className="w-56 h-56 rounded-full overflow-hidden shadow-2xl border-4 border-white bg-gray-50 z-10">
-              <img src="/images/logo-burgundy.jpg" alt="KAELORA Designer Curation" className="w-full h-full object-cover" />
+              <Image 
+                src="/images/logo-burgundy.jpg" 
+                alt="KAELORA Designer Curation" 
+                width={224} 
+                height={224} 
+                className="w-full h-full object-cover" 
+              />
             </div>
             <div className="absolute top-2 right-2 text-2xl animate-bounce">👑</div>
           </div>

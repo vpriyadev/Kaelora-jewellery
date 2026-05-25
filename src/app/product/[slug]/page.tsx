@@ -1,17 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { serviceDb, Product, dbSimulator } from '../../../lib/firebase';
 import { useApp } from '../../../context/AppContext';
 import ProductCard from '../../../components/ProductCard';
-import { Heart, ShoppingBag, Truck, Star, Share2, Copy, Send, CheckCircle2, ChevronRight, AlertCircle, Camera, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Heart, ShoppingBag, Truck, Share2, Copy, CheckCircle2, ChevronRight, AlertCircle, Camera, Loader2 } from 'lucide-react';
 
 export default function ProductDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const { cart, wishlist, toggleWishlist, addToCart, addReview, user, triggerToast } = useApp();
+  const { wishlist, toggleWishlist, addToCart, addReview, user, triggerToast } = useApp();
 
   const slug = params.slug as string;
 
@@ -89,7 +89,6 @@ export default function ProductDetailsPage() {
 
   // Wishlist check
   const isWishlisted = wishlist.includes(product.id);
-  const inCart = cart.some(item => item.product.id === product.id);
 
   // Zoom events
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -149,7 +148,7 @@ export default function ProductDetailsPage() {
       setReviewComment('');
       setReviewRating(5);
       setReviewPhoto(null);
-    } catch (err) {
+    } catch {
       triggerToast("Review submission failed.", "error");
     } finally {
       setSubmittingReview(false);
@@ -197,9 +196,11 @@ export default function ProductDetailsPage() {
             onMouseLeave={handleMouseLeave}
             className="relative aspect-square rounded-2xl overflow-hidden border border-[#EDE6DA] cursor-zoom-in bg-gray-50"
           >
-            <img
+            <Image
               src={product.images[activeImageIndex] || '/images/logo-burgundy.jpg'}
               alt={product.name}
+              fill
+              priority
               className="w-full h-full object-cover transition-transform duration-100"
               style={{
                 transform: `scale(${zoomScale})`,
@@ -220,11 +221,11 @@ export default function ProductDetailsPage() {
                 <button
                   key={idx}
                   onClick={() => setActiveImageIndex(idx)}
-                  className={`w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 bg-gray-50 transition-all ${
+                  className={`w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 bg-gray-50 transition-all relative ${
                     activeImageIndex === idx ? 'border-[#D4AF37] scale-95 shadow-md' : 'border-[#EDE6DA] hover:border-gray-300'
                   }`}
                 >
-                  <img src={img} alt={`${product.name} thumbnail ${idx}`} className="w-full h-full object-cover" />
+                  <Image src={img} alt={`${product.name} thumbnail ${idx}`} fill className="object-cover" />
                 </button>
               ))}
             </div>
@@ -518,8 +519,8 @@ export default function ProductDetailsPage() {
                     </p>
 
                     {rev.image && (
-                      <div className="w-24 h-24 rounded-lg overflow-hidden border border-[#EDE6DA] shadow-sm bg-gray-50 mt-1">
-                        <img src={rev.image} alt="User review photo" className="w-full h-full object-cover" />
+                      <div className="w-24 h-24 rounded-lg overflow-hidden border border-[#EDE6DA] shadow-sm bg-gray-50 mt-1 relative">
+                        <Image src={rev.image} alt="User review photo" fill className="object-cover" />
                       </div>
                     )}
                   </div>

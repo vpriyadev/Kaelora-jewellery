@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useApp } from '../../context/AppContext';
 import { serviceDb, Product } from '../../lib/firebase';
 import { Heart, ShoppingCart, Trash2, ArrowRight } from 'lucide-react';
@@ -52,9 +53,10 @@ export default function WishlistPage() {
             >
               {/* Product Image Frame */}
               <div className="relative h-64 bg-gray-50 overflow-hidden">
-                <img
+                <Image
                   src={prod.images[0] || '/images/logo-burgundy.jpg'}
                   alt={prod.name}
+                  fill
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 

@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useApp } from '../../context/AppContext';
-import { serviceDb, Product, Order, Address, Review, dbSimulator } from '../../lib/firebase';
+import { serviceDb, Product, Order, Review, dbSimulator } from '../../lib/firebase';
 import { useRouter } from 'next/navigation';
-import { ShieldCheck, Plus, Pencil, Trash, Check, X, ShieldAlert, Award, Package, ShoppingBag, MessageSquare, AlertCircle, RefreshCw } from 'lucide-react';
+import { Plus, Pencil, Trash, Check, X, ShieldAlert, Award, Package, ShoppingBag, MessageSquare, RefreshCw } from 'lucide-react';
 
 export default function AdminDashboardPage() {
-  const { user, settings, updateGlobalSettings, addProduct, updateProduct, deleteProduct, triggerToast } = useApp();
+  const { user, settings, adminUpdateSettings, adminAddProduct, adminEditProduct, adminDeleteProduct, triggerToast, setAuthModalOpen } = useApp();
   const router = useRouter();
 
   // Admin access gatekeeper check
@@ -16,7 +17,7 @@ export default function AdminDashboardPage() {
       triggerToast("Access restricted: Administrators only.", "error");
       router.push('/account');
     }
-  }, [user]);
+  }, [user, router, triggerToast]);
 
   // Tab controllers
   const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'reviews' | 'settings'>('products');
@@ -130,37 +131,41 @@ export default function AdminDashboardPage() {
           name: pName,
           price: pPrice,
           discountPrice: pDiscPrice,
-          category: pCategory,
-          wearType: pWearType,
+          category: pCategory as 'earrings' | 'chains' | 'bangles',
+          wearType: pWearType as 'daily' | 'casual' | 'party' | 'traditional' | 'festive',
           stock: pStock,
           description: pDesc,
           featured: pFeatured,
           bestSeller: pBestSeller
         };
-        await updateProduct(updated);
+        await adminEditProduct(updated.id, updated);
         triggerToast("Product details updated successfully.", "success");
       } else {
         // Add product
-        const newP: Omit<Product, 'id' | 'slug' | 'rating' | 'createdAt'> = {
+        const newP: Omit<Product, 'id'> = {
+          slug: pName.toLowerCase().replace(/\s+/g, '-'),
           name: pName,
           price: pPrice,
           discountPrice: pDiscPrice,
-          category: pCategory,
-          wearType: pWearType,
+          category: pCategory as 'earrings' | 'chains' | 'bangles',
+          wearType: pWearType as 'daily' | 'casual' | 'party' | 'traditional' | 'festive',
           stock: pStock,
           description: pDesc,
           featured: pFeatured,
           bestSeller: pBestSeller,
-          images: pCategory === 'earrings' ? ['/images/logo-burgundy.jpg'] : ['/images/logo-burgundy.jpg']
+          rating: 0,
+          reviewCount: 0,
+          images: pCategory === 'earrings' ? ['/images/logo-burgundy.jpg'] : ['/images/logo-burgundy.jpg'],
+          createdAt: new Date().toISOString()
         };
-        await addProduct(newP);
+        await adminAddProduct(newP);
         triggerToast("New article appended to registry successfully.", "success");
       }
 
       setProductModalOpen(false);
       clearProductForm();
       loadDatabaseRecords();
-    } catch (err) {
+    } catch {
       triggerToast("Registry modification failed.", "error");
     }
   };
@@ -195,10 +200,10 @@ export default function AdminDashboardPage() {
   const handleDeleteProduct = async (id: string) => {
     if (confirm("Are you confident you want to delete this article registry profile?")) {
       try {
-        await deleteProduct(id);
+        await adminDeleteProduct(id);
         triggerToast("Product successfully purged from registry.", "success");
         loadDatabaseRecords();
-      } catch (err) {
+      } catch {
         triggerToast("Purge failed.", "error");
       }
     }
@@ -207,24 +212,24 @@ export default function AdminDashboardPage() {
   // Orders Dispatch Status update
   const handleUpdateOrderStatus = async (orderId: string, nextStatus: 'processing' | 'shipped' | 'delivered') => {
     try {
-      await dbSimulator.updateOrderStatus(orderId, nextStatus);
+      await serviceDb.updateOrderStatus(orderId, nextStatus);
       triggerToast(`Order status updated to "${nextStatus}"`, "success");
       loadDatabaseRecords();
-    } catch (err) {
+    } catch {
       triggerToast("Status update failed.", "error");
     }
   };
 
   // Review approval moderation
   const handleApproveReview = (reviewId: string) => {
-    dbSimulator.approveReview(reviewId);
+    serviceDb.approveReview(reviewId);
     triggerToast("Review published to public listings page.", "success");
     loadDatabaseRecords();
   };
 
   const handleDeleteReview = (reviewId: string) => {
     if (confirm("Delete this user review comments?")) {
-      dbSimulator.deleteReview(reviewId);
+      serviceDb.rejectOrDeleteReview(reviewId);
       triggerToast("Review successfully removed.", "success");
       loadDatabaseRecords();
     }
@@ -233,7 +238,7 @@ export default function AdminDashboardPage() {
   // Platform configs update
   const handleSettingsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateGlobalSettings({
+    adminUpdateSettings({
       freeShippingLimit: shipLimit,
       standardShippingCharge: shipFee,
       codFee,
@@ -364,7 +369,13 @@ export default function AdminDashboardPage() {
                 {products.map((prod) => (
                   <tr key={prod.id} className="hover:bg-gray-50/50">
                     <td className="px-6 py-4 flex items-center gap-3">
-                      <img src={prod.images[0]} alt={prod.name} className="w-10 h-10 rounded-lg object-cover border border-gray-100" />
+                      <Image 
+                        src={prod.images[0]} 
+                        alt={prod.name} 
+                        width={40} 
+                        height={40} 
+                        className="w-10 h-10 rounded-lg object-cover border border-gray-100" 
+                      />
                       <div className="min-w-0">
                         <h4 className="font-bold text-[#1A1A1A] truncate">{prod.name}</h4>
                         <span className="text-[10px] text-gray-400 font-mono truncate block">ID: {prod.id}</span>
@@ -530,7 +541,13 @@ export default function AdminDashboardPage() {
                     </td>
                     <td className="px-6 py-4">
                       {rev.image ? (
-                        <img src={rev.image} alt="User asset attachment" className="w-10 h-10 rounded object-cover border border-gray-100" />
+                        <Image 
+                          src={rev.image} 
+                          alt="User asset attachment" 
+                          width={40} 
+                          height={40} 
+                          className="w-10 h-10 rounded object-cover border border-gray-100" 
+                        />
                       ) : (
                         <span className="text-gray-400 italic text-[10px]">None</span>
                       )}

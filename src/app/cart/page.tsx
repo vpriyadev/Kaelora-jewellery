@@ -2,8 +2,10 @@
 
 import React from 'react';
 import { useApp } from '../../context/AppContext';
+import { Product } from '../../lib/firebase';
 import { ShoppingBag, ArrowRight, Trash2, Heart, Gift, Award } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function CartPage() {
   const { cart, removeFromCart, updateCartQuantity, settings, user, toggleWishlist, triggerToast } = useApp();
@@ -94,7 +96,13 @@ export default function CartPage() {
                 >
                   {/* Thumbnail frame */}
                   <div className="w-20 h-20 rounded-xl overflow-hidden border border-[#EDE6DA] bg-gray-50 flex-shrink-0">
-                    <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                    <Image 
+                      src={item.product.images[0]} 
+                      alt={item.product.name} 
+                      width={80} 
+                      height={80} 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
 
                   {/* Details content */}

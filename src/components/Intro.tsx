@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const Intro: React.FC = () => {
@@ -46,9 +47,11 @@ export const Intro: React.FC = () => {
               className="relative w-[220px] h-[220px] mb-6 flex items-center justify-center overflow-visible"
             >
               <div className="absolute inset-0 rounded-full bg-[#FAF5EE] shadow-[0_0_120px_rgba(212,175,55,0.18)]" />
-              <img
+              <Image
                 src="/images/logo-burgundy.jpg"
                 alt="KAELORA Jewellery"
+                width={220}
+                height={220}
                 className="relative z-10 h-full w-auto object-contain"
               />
               <motion.div

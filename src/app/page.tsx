@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { serviceDb, Product } from '../lib/firebase';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/ProductCard';
@@ -267,9 +268,10 @@ export default function HomePage() {
                 className="flex flex-col rounded-[2rem] border border-[#EDE6DA] overflow-hidden bg-[#F8F5F0] hover:shadow-xl transition-all duration-300"
               >
                 <div className="h-72 overflow-hidden relative group">
-                  <img
+                  <Image
                     src={coll.image}
                     alt={coll.title}
+                    fill
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-[#1A1A1A]/10" />
@@ -421,9 +423,11 @@ export default function HomePage() {
 
           <div className="relative bg-[#F8F5F0] rounded-[2rem] border border-[#EDE6DA] p-6 sm:p-10 shadow-sm overflow-hidden flex flex-col sm:flex-row items-center gap-6 sm:gap-10">
             <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl overflow-hidden shadow-md flex-shrink-0 bg-gray-100">
-              <img
+              <Image
                 src={clientReviews[currentReviewIndex].photo}
                 alt={clientReviews[currentReviewIndex].name}
+                width={128}
+                height={128}
                 className="w-full h-full object-cover"
               />
             </div>

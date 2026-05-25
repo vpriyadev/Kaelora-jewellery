@@ -1,24 +1,20 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { serviceAuth, serviceDb, serviceStorage, Product } from '../lib/firebase';
+import { serviceAuth, serviceDb, serviceStorage, Product, Address, Order } from '../lib/firebase';
+import { User as FirebaseUser } from 'firebase/auth';
 
 interface CartItem {
   product: Product;
   quantity: number;
 }
 
-export interface Address {
-  fullName: string;
-  phone: string;
-  houseNumber: string;
-  street: string;
-  area: string;
-  city: string;
-  district: string;
-  state: string;
-  pincode: string;
-  isDefault?: boolean;
+interface User extends FirebaseUser {
+  rewardStatus?: {
+    totalItemsBought: number;
+    giftUnlocked: boolean;
+  };
+  isAdmin?: boolean;
 }
 
 export interface ToastMessage {
@@ -56,6 +52,10 @@ interface AppContextType {
   moveToCart: (productId: string) => void;
   // Order actions
   placeOrder: (address: Address) => Promise<string>;
+  checkoutCart: (address: Address, paymentMethod: string) => Promise<any>;
+  // Address actions
+  addAddress: (address: Address) => Promise<void>;
+  deleteAddress: (addressId: string) => Promise<void>;
   // Reviews actions
   addReview: (productId: string, rating: number, comment: string, file: File | null) => Promise<void>;
   // Admin actions
@@ -311,7 +311,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       userId: user.uid,
       customerName: address.fullName,
       phone: address.phone,
-      address: `${address.houseNumber}, ${address.street}, ${address.area}, ${address.city}, ${address.state} - ${address.pincode}`,
+      address: `${address.addressLine}, ${address.city}, ${address.state} - ${address.pincode}`,
       products: cart.map(item => ({
         id: item.product.id,
         name: item.product.name,
@@ -362,6 +362,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     await clearCart();
     return newOrderId;
+  };
+
+  // Checkout Cart (alias for placeOrder)
+  const checkoutCart = async (address: Address, _paymentMethod: string) => {
+    return await placeOrder(address);
+  };
+
+  // Address Management
+  const addAddress = async (address: Address) => {
+    if (!user) throw new Error("Authentication required!");
+    await serviceDb.addAddress(user.uid, address);
+  };
+
+  const deleteAddress = async (addressId: string) => {
+    if (!user) throw new Error("Authentication required!");
+    await serviceDb.deleteAddress(user.uid, addressId);
   };
 
   // Submit Review
@@ -455,7 +471,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       user, loadingAuth, cart, wishlist, orders, reviews, settings, toasts, triggerToast, dismissToast,
       login, signUp, googleLogin, logout, authModalOpen, setAuthModalOpen, interceptAuthAction,
       addToCart, removeFromCart, updateCartQuantity, clearCart,
-      toggleWishlist, moveToCart, placeOrder, addReview,
+      toggleWishlist, moveToCart, placeOrder, checkoutCart, addAddress, deleteAddress, addReview,
       adminAddProduct, adminEditProduct, adminDeleteProduct, adminUpdateOrderStatus,
       adminApproveReview, adminRejectReview, adminFeatureReview, adminUpdateSettings
     }}>

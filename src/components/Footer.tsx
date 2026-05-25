@@ -2,7 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Mail, Phone, MapPin, Send, Instagram, Facebook } from 'lucide-react';
+import Image from 'next/image';
+import { Send, Instagram, Facebook } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -24,9 +25,11 @@ export const Footer: React.FC = () => {
           {/* COL 1: Logo & About description */}
           <div className="flex flex-col gap-4">
             <Link href="/" className="flex items-center gap-2 group">
-              <img
+              <Image
               src="/images/logo-burgundy.jpg"
               alt="KAELORA Jewellery"
+              width={40}
+              height={40}
               className="h-10 w-auto object-contain"
             />
             <div className="flex flex-col">

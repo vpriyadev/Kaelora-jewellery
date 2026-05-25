@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 import { Search, Heart, ShoppingBag, User, Menu, X, LogOut, Shield, Instagram, Facebook } from 'lucide-react';
@@ -82,9 +83,11 @@ export const Navbar: React.FC = () => {
           
           {/* LEFT: Branding Brand Logo */}
           <Link href="/" className="flex items-center gap-3 group h-auto">
-            <img
+            <Image
               src="/images/logo-burgundy.jpg"
               alt="KAELORA Jewellery"
+              width={60}
+              height={60}
               className="h-[40px] sm:h-[50px] md:h-[55px] lg:h-[60px] w-auto object-contain flex-shrink-0"
             />
             <div className="hidden md:flex flex-col justify-center">
@@ -281,9 +284,11 @@ export const Navbar: React.FC = () => {
             >
               <div className="flex flex-col gap-6 mt-12">
                 <div className="flex items-center gap-3 border-b border-[#EDE6DA] pb-4 mb-2">
-                  <img
+                  <Image
                     src="/images/logo-burgundy.jpg"
                     alt="KAELORA Jewellery"
+                    width={45}
+                    height={45}
                     className="h-[45px] w-auto object-contain flex-shrink-0"
                   />
                   <span className="text-sm font-bold uppercase tracking-widest text-[#1A1A1A]">Kaelora Jewellery</span>

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Mail, Lock, User, Sparkles, X, ChevronRight, AlertCircle } from 'lucide-react';
+import { Mail, Lock, User, X, ChevronRight, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const AuthModal: React.FC = () => {

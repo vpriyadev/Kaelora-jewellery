@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useApp } from '../context/AppContext';
 import { Heart, ShoppingCart, Star, Eye } from 'lucide-react';
 import { Product } from '../lib/firebase';
@@ -46,9 +47,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
       {/* Image Gallery Container (Clickable links to Details) */}
       <Link href={`/product/${product.slug}`} className="block relative overflow-hidden bg-gray-50 aspect-square">
-        <motion.img
+        <Image
           src={product.images[0] || '/images/logo-burgundy.jpg'}
           alt={product.name}
+          fill
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         {/* Quick hover detail overlay */}

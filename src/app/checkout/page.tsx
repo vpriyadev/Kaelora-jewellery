@@ -1,22 +1,19 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useApp } from '../../context/AppContext';
 import { serviceDb, Address, Order } from '../../lib/firebase';
 import { useRouter } from 'next/navigation';
-import { MapPin, ShieldCheck, CreditCard, ChevronRight, Loader2, Award, Gift, Calendar, Sparkles, CheckCircle2 } from 'lucide-react';
+import { MapPin, ShieldCheck, CreditCard, ChevronRight, Loader2, Gift, Calendar, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CheckoutPage() {
   const { cart, user, settings, setAuthModalOpen, checkoutCart, addAddress, triggerToast } = useApp();
   const router = useRouter();
 
-  // Redirect if cart is empty
-  useEffect(() => {
-    if (cart.length === 0 && !completedOrder) {
-      router.push('/cart');
-    }
-  }, [cart]);
+  // Success States
+  const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
 
   // Loading past addresses
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
@@ -35,8 +32,12 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'online'>('online');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Success States
-  const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
+  // Redirect if cart is empty
+  useEffect(() => {
+    if (cart.length === 0 && !completedOrder) {
+      router.push('/cart');
+    }
+  }, [cart, completedOrder, router]);
 
   // Load user saved addresses
   useEffect(() => {
@@ -160,12 +161,12 @@ export default function CheckoutPage() {
           origin: { y: 0.6 },
           colors: ['#D4AF37', '#EDE6DA', '#1A1A1A']
         });
-      } catch (err) {
+      } catch {
         // dynamic import failed, fallback gracefully
       }
 
       triggerToast("✨ Order successfully placed! Enjoy your KAELORA jewellery.", "success");
-    } catch (err: Error | any) {
+    } catch (err: any) {
       triggerToast(err.message || "Failed to place order.", "error");
     } finally {
       setIsSubmitting(false);
@@ -486,7 +487,13 @@ export default function CheckoutPage() {
             <div className="max-h-60 overflow-y-auto pr-1 flex flex-col gap-3">
               {cart.map((item) => (
                 <div key={item.product.id} className="flex items-center gap-3 text-xs">
-                  <img src={item.product.images[0]} alt={item.product.name} className="w-10 h-10 rounded-lg object-cover border border-gray-100" />
+                  <Image 
+                    src={item.product.images[0]} 
+                    alt={item.product.name} 
+                    width={40} 
+                    height={40} 
+                    className="w-10 h-10 rounded-lg object-cover border border-gray-100" 
+                  />
                   <div className="flex-grow min-w-0">
                     <h4 className="font-semibold text-gray-700 truncate">{item.product.name}</h4>
                     <span className="text-[10px] text-gray-400">Qty: {item.quantity}</span>

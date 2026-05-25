@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useApp, Address } from '../../context/AppContext';
-import { serviceDb } from '../../lib/firebase';
+import { useApp } from '../../context/AppContext';
+import { serviceDb, Order, Address } from '../../lib/firebase';
 import { useRouter } from 'next/navigation';
-import { User, MapPin, Package, Gift, Trash2, Calendar, ShieldCheck, ChevronRight, Award, Truck } from 'lucide-react';
+import { User, MapPin, Package, Gift, Trash2, ShieldCheck, Award } from 'lucide-react';
+import Image from 'next/image';
 
 export default function AccountPage() {
-  const { user, logout, settings, setAuthModalOpen, triggerToast } = useApp();
+  const { user, logout, settings, setAuthModalOpen, triggerToast, deleteAddress } = useApp();
   const router = useRouter();
 
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -42,7 +43,7 @@ export default function AccountPage() {
       await deleteAddress(id);
       setAddresses(prev => prev.filter(a => a.id !== id));
       triggerToast("Address successfully removed from book.", "success");
-    } catch (err) {
+    } catch {
       triggerToast("Failed to delete address.", "error");
     }
   };
@@ -300,7 +301,13 @@ export default function AccountPage() {
                         <div className="flex flex-col gap-3 py-2 border-b border-[#EDE6DA]/40">
                           {ord.items.map((item, i) => (
                             <div key={i} className="flex items-center gap-3.5 text-xs">
-                              <img src={item.productImage} alt={item.productName} className="w-10 h-10 rounded-lg object-cover border border-gray-100" />
+                              <Image 
+                                src={item.productImage} 
+                                alt={item.productName} 
+                                width={40} 
+                                height={40} 
+                                className="w-10 h-10 rounded-lg object-cover border border-gray-100" 
+                              />
                               <div className="flex-grow min-w-0">
                                 <h4 className="font-semibold text-gray-800 truncate">{item.productName}</h4>
                                 <span className="text-[10px] text-gray-400">Quantity: {item.quantity}</span>

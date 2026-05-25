@@ -1,0 +1,83 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build",
+			"type": "shell",
+			"command": "npm run build"
+		},
+		{
+			"label": "build-verify",
+			"type": "shell",
+			"command": "npm run build",
+			"problemMatcher": [
+				"$tsc"
+			]
+		},
+		{
+			"label": "final-build",
+			"type": "shell",
+			"command": "npm run build"
+		},
+		{
+			"label": "build-fixed",
+			"type": "shell",
+			"command": "npm run build"
+		},
+		{
+			"label": "build-final",
+			"type": "shell",
+			"command": "npm run build"
+		},
+		{
+			"label": "build-check",
+			"type": "shell",
+			"command": "npm run build"
+		},
+		{
+			"label": "build-verify2",
+			"type": "shell",
+			"command": "npm run build"
+		},
+		{
+			"label": "build-final-check",
+			"type": "shell",
+			"command": "npm run build"
+		},
+		{
+			"label": "build-success",
+			"type": "shell",
+			"command": "npm run build"
+		},
+		{
+			"label": "build-complete",
+			"type": "shell",
+			"command": "npm run build"
+		},
+		{
+			"label": "build-progress",
+			"type": "shell",
+			"command": "npm run build"
+		},
+		{
+			"label": "build-status",
+			"type": "shell",
+			"command": "npm run build"
+		},
+		{
+			"label": "build-near-complete",
+			"type": "shell",
+			"command": "npm run build"
+		},
+		{
+			"label": "build-almost-done",
+			"type": "shell",
+			"command": "npm run build"
+		},
+		{
+			"label": "build-success-final",
+			"type": "shell",
+			"command": "npm run build"
+		}
+	]
+}
